@@ -21,13 +21,25 @@ DEST := /usr/local/bin
 
 PROGRAM := roku
 
+.PHONY: all
+all: $(PROGRAM)
+
 $(PROGRAM): $(OBJ)
 	@printf " LD   $@\n"
-	@$(LD) $< -o $@
+	@$(LD) $(OBJ) -o $@
 
 %.o: %.c
 	@printf " CC   $^\n"
 	@$(CC) $(CFLAGS) -c $< -o $@
+
+.PHONY: docs
+docs:
+	@printf " DOXY docs/html"
+	@mkdir -p docs
+	@doxygen
+	@printf " DOXY docs/latex"
+	@make -C docs/latex
+	@mv docs/latex/refman.pdf docs
 
 .PHONY: install
 install: $(PROGRAM)
@@ -42,4 +54,4 @@ uninstall:
 .PHONY: clean
 clean:
 	@printf " CLEAN\n"
-	@rm -rf $(OBJ) $(PROGRAM)
+	@rm -rf $(OBJ) $(PROGRAM) docs/
