@@ -32,6 +32,10 @@ $(PROGRAM): $(OBJ)
 	@printf " CC   $^\n"
 	@$(CC) $(CFLAGS) -c $< -o $@
 
+.PHONY: format
+format:
+	@clang-format -i $(CFILES)
+
 .PHONY: docs
 docs:
 	@printf " DOXY docs/html\n"
