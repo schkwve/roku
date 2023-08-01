@@ -11,6 +11,10 @@
 
 #define CTRL_KEY(k) ((k) & 0x1f)
 
+/**
+ * @brief	This enumeration contains different keys
+ * 			that can be pressed.
+ */
 enum input_keys {
 	ARROW_LEFT = 1000,
 	ARROW_RIGHT,

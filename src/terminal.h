@@ -9,6 +9,10 @@
 #ifndef __TERMINAL_H_
 #define __TERMINAL_H_
 
+/**
+ * @brief	This structure contains information about the terminal's
+ * 			window size.
+ */
 typedef struct {
 	int rows;
 	int cols;
