@@ -10,6 +10,12 @@
 #define __TERMINAL_H_
 
 /**
+ * @brief	This routine clears the terminal screen and repositions
+ * 			the cursor to 0,0.
+ */
+void terminal_clear_screen();
+
+/**
  * @brief	This function saves current terminal flags,
  * 			enables raw mode and registers terminal_reset()
  * 			to run at exit.

@@ -14,26 +14,31 @@
 #include "roku.h"
 
 /**
- * @brief	This variable contains the original terminal flags state.
+ * @brief	This routine clears the terminal screen and repositions
+ * 			the cursor to 0,0.
  */
-struct termios g_orig_terminal_flags;
+void terminal_clear_screen()
+{
+	write(STDOUT_FILENO, "\x1b[2J]", 4);
+	write(STDOUT_FILENO, "\x1b[H]", 3);
+}
 
 /**
- * @brief	This function saves current terminal flags,
+ * @brief	This routine saves current terminal flags,
  * 			enables raw mode and registers terminal_reset()
  * 			to run at exit.
  */
 void terminal_enable_raw()
 {
 	// get current terminal flags
-	if (tcgetattr(STDIN_FILENO, &g_orig_terminal_flags) == -1) {
+	if (tcgetattr(STDIN_FILENO, &roku_config.orig_termios) == -1) {
 		die("tcgetattr: couldn't get terminal flags");
 	}
 
 	// register terminal_reset()
 	atexit(terminal_reset);
 
-	struct termios new_terminal_flags;
+	struct termios new_terminal_flags = roku_config.orig_termios;
 
 	// modify local terminal flags:
 	//	~ECHO - no echoing
@@ -50,9 +55,6 @@ void terminal_enable_raw()
 	new_terminal_flags.c_lflag &= ~(ICANON);
 	new_terminal_flags.c_lflag &= ~(IEXTEN);
 	new_terminal_flags.c_lflag &= ~(ISIG);
-
-	new_terminal_flags.c_lflag &= ~(BRKINT);
-	new_terminal_flags.c_lflag |=  (CS8);
 
 	// modify input terminal flags;
 	//	~IXON - disable software flow control processing
@@ -76,10 +78,10 @@ void terminal_enable_raw()
 }
 
 /**
- * @brief	This function resets the terminal flags to their original
+ * @brief	This routine resets the terminal flags to their original
  * 			state saved in g_orig_terminal_flags.
  */
 void terminal_reset()
 {
-	tcsetattr(STDIN_FILENO, TCSAFLUSH, &g_orig_terminal_flags);
+	tcsetattr(STDIN_FILENO, TCSAFLUSH, &roku_config.orig_termios);
 }
