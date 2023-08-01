@@ -22,7 +22,7 @@ DEST := /usr/local/bin
 PROGRAM := roku
 
 .PHONY: all
-all: $(PROGRAM) docs
+all: $(PROGRAM)
 
 $(PROGRAM): $(OBJ)
 	@printf " LD   $@\n"
