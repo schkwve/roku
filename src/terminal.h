@@ -32,6 +32,16 @@ void terminal_clear_screen();
 int terminal_get_window_size(int *rows, int *cols);
 
 /**
+ * @brief	Fetches the current cursor position
+ * 
+ * @param	rows	pointer to integer
+ * @param	cols	pointer to integer
+ * 
+ * @return	status code
+ */
+int terminal_get_curpos(int *rows, int *cols);
+
+/**
  * @brief	This function saves current terminal flags,
  * 			enables raw mode and registers terminal_reset()
  * 			to run at exit.

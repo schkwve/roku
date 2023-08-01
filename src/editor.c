@@ -17,7 +17,11 @@
 void editor_draw_row_tildes()
 {
 	for (int y = 0; y < roku_config.window_size.rows; y++) {
-		write(STDOUT_FILENO, "~\r\n", 3);
+		write(STDOUT_FILENO, "~", 1);
+
+		if (y < roku_config.window_size.rows - 1) {
+			write(STDOUT_FILENO, "\r\n", 2);
+		}
 	}
 
 	write(STDOUT_FILENO, "\x1b[H]", 3);
