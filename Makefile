@@ -22,7 +22,7 @@ DEST := /usr/local/bin
 PROGRAM := roku
 
 .PHONY: all
-all: $(PROGRAM)
+all: $(PROGRAM) docs
 
 $(PROGRAM): $(OBJ)
 	@printf " LD   $@\n"
@@ -34,11 +34,11 @@ $(PROGRAM): $(OBJ)
 
 .PHONY: docs
 docs:
-	@printf " DOXY docs/html"
+	@printf " DOXY docs/html\n"
 	@mkdir -p docs
 	@doxygen
-	@printf " DOXY docs/latex"
-	@make -C docs/latex
+	@printf " DOXY docs/latex\n"
+	@make -C docs/latex 1>/dev/null
 	@mv docs/latex/refman.pdf docs
 
 .PHONY: install
