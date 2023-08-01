@@ -9,6 +9,7 @@
 #include <termios.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
 
 #include "terminal.h"
 #include "roku.h"
@@ -21,6 +22,28 @@ void terminal_clear_screen()
 {
 	write(STDOUT_FILENO, "\x1b[2J]", 4);
 	write(STDOUT_FILENO, "\x1b[H]", 3);
+}
+
+/**
+ * @brief	This routine fetches the terminal window size and sets it
+ * 			to the parameters
+ * 
+ * @param 	rows	pointer to integer
+ * @param 	cols	pointer to integer
+ * 
+ * @return	status code
+ */
+int terminal_get_window_size(int *rows, int *cols)
+{
+	struct winsize ws;
+
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
+		return -1;
+	} else {
+		*cols = ws.ws_col;
+		*rows = ws.ws_row;
+		return 0;
+	}
 }
 
 /**

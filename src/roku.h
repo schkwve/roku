@@ -10,8 +10,11 @@
 
 #include <termios.h>
 
+#include "terminal.h"
+
 typedef struct {
 	struct termios orig_termios;
+	terminal_winsize_t window_size;
 } roku_config_t;
 
 /**

@@ -9,11 +9,27 @@
 #ifndef __TERMINAL_H_
 #define __TERMINAL_H_
 
+typedef struct {
+	int rows;
+	int cols;
+} terminal_winsize_t;
+
 /**
  * @brief	This routine clears the terminal screen and repositions
  * 			the cursor to 0,0.
  */
 void terminal_clear_screen();
+
+/**
+ * @brief	This routine fetches the terminal window size and sets it
+ * 			to the parameters
+ * 
+ * @param 	rows	pointer to integer
+ * @param 	cols	pointer to integer
+ * 
+ * @return	status code
+ */
+int terminal_get_window_size(int *rows, int *cols);
 
 /**
  * @brief	This function saves current terminal flags,

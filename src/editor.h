@@ -14,4 +14,9 @@
  */
 void editor_draw_row_tildes();
 
+/**
+ * @brief	This routine initializes the editor interface
+ */
+void editor_init();
+
 #endif // __EDITOR_H_

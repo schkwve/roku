@@ -23,6 +23,7 @@ roku_config_t roku_config;
 int main()
 {
 	terminal_enable_raw();
+	editor_init();
 
 	// we couldn't exit the program without this
 	while (1) {
