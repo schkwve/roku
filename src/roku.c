@@ -11,6 +11,11 @@
 #include <unistd.h>
 
 #include "terminal.h"
+#include "editor.h"
+#include "input.h"
+#include "roku.h"
+
+roku_config_t roku_config;
 
 /**
  * @brief	Entry point.
@@ -21,12 +26,12 @@ int main()
 
 	// we couldn't exit the program without this
 	while (1) {
-		char c = '\0';
-		read(STDIN_FILENO, &c, 1);
-		if (!iscntrl(c)) {
-			printf("%c\r\n", c);
-		}
-		if (c == 'q') break;
+		terminal_clear_screen();
+		editor_draw_row_tildes();
+
+		input_handle_keypress();
+
+		write(STDOUT_FILENO, "\x1b[H]", 3);
 	}
 
 	return 0;
@@ -37,6 +42,8 @@ int main()
  */
 void die(char *msg)
 {
+	terminal_clear_screen();
+
 	perror(msg);
 	perror("\r\n");
 	exit(1);
