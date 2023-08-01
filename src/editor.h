@@ -25,6 +25,12 @@ struct append_buf {
 void editor_draw_row_tildes(struct append_buf *buf);
 
 /**
+ * @brief	This routine informs the editor_refresh_screen()
+ * 			function to update the cursor position
+ */
+void editor_move_curpos(int key);
+
+/**
  * @brief	This routine initializes the editor interface
  */
 void editor_init();

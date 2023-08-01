@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "config.h"
+#include "input.h"
 #include "editor.h"
 #include "roku.h"
 
@@ -53,6 +54,36 @@ void editor_draw_row_tildes(struct append_buf *buf)
 }
 
 /**
+ * @brief	This routine informs the editor_refresh_screen()
+ * 			function to update the cursor position
+ */
+void editor_move_curpos(int key)
+{
+	switch (key) {
+		case ARROW_LEFT:
+			if (roku_config.cx != 0) {
+				roku_config.cx--;
+			}
+			break;
+		case ARROW_RIGHT:
+			if (roku_config.cx != roku_config.window_size.cols - 1) {
+				roku_config.cx++;
+			}
+			break;
+		case ARROW_UP:
+			if (roku_config.cy != 0) {
+				roku_config.cy--;
+			}
+			break;
+		case ARROW_DOWN:
+			if (roku_config.cy != roku_config.window_size.rows - 1) {
+				roku_config.cy++;
+			}
+			break;
+	}
+}
+
+/**
  * @brief	This routine initializes the editor interface
  */
 void editor_init()
@@ -81,7 +112,6 @@ void editor_refresh_screen()
 	snprintf(buffer, sizeof(buffer), "\x1b[%d;%dH", roku_config.cy + 1, roku_config.cx + 1);
 	editor_buffer_append(&buf, buffer, strlen(buffer));
 
-	editor_buffer_append(&buf, "\x1b[H", 3);
 	editor_buffer_append(&buf, "\x1b[?25h", 6);
 
 	write(STDOUT_FILENO, buf.buffer, buf.size);
