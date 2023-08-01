@@ -12,7 +12,7 @@
 CC := gcc
 LD := $(CC)
 
-CFLAGS := -O2 -g3
+CFLAGS := -O2 -g3 -Wall -Wextra -Werror -pedantic -std=c99
 
 CFILES := $(shell find src -name "*.c")
 OBJ := $(CFILES:.c=.o)
