@@ -24,7 +24,8 @@ void editor_draw_row_tildes(struct append_buf *buf)
 	for (int y = 0; y < roku_config.window_size.rows; y++) {
 		if (y == roku_config.window_size.rows / 3) {
 			char welcome_msg[80];
-			int welcome_msg_len = snprintf(welcome_msg, sizeof(welcome_msg), ROKU_WELCOME_MESSAGE, ROKU_VERSION);
+			int welcome_msg_len = snprintf(welcome_msg, sizeof(welcome_msg),
+										   ROKU_WELCOME_MESSAGE, ROKU_VERSION);
 			if (welcome_msg_len > roku_config.window_size.cols) {
 				welcome_msg_len = roku_config.window_size.cols;
 			}
@@ -60,26 +61,26 @@ void editor_draw_row_tildes(struct append_buf *buf)
 void editor_move_curpos(int key)
 {
 	switch (key) {
-		case ARROW_LEFT:
-			if (roku_config.cx != 0) {
-				roku_config.cx--;
-			}
-			break;
-		case ARROW_RIGHT:
-			if (roku_config.cx != roku_config.window_size.cols - 1) {
-				roku_config.cx++;
-			}
-			break;
-		case ARROW_UP:
-			if (roku_config.cy != 0) {
-				roku_config.cy--;
-			}
-			break;
-		case ARROW_DOWN:
-			if (roku_config.cy != roku_config.window_size.rows - 1) {
-				roku_config.cy++;
-			}
-			break;
+	case ARROW_LEFT:
+		if (roku_config.cx != 0) {
+			roku_config.cx--;
+		}
+		break;
+	case ARROW_RIGHT:
+		if (roku_config.cx != roku_config.window_size.cols - 1) {
+			roku_config.cx++;
+		}
+		break;
+	case ARROW_UP:
+		if (roku_config.cy != 0) {
+			roku_config.cy--;
+		}
+		break;
+	case ARROW_DOWN:
+		if (roku_config.cy != roku_config.window_size.rows - 1) {
+			roku_config.cy++;
+		}
+		break;
 	}
 }
 
@@ -91,7 +92,8 @@ void editor_init()
 	roku_config.cx = 0;
 	roku_config.cy = 0;
 
-	if (terminal_get_window_size(&roku_config.window_size.rows, &roku_config.window_size.cols) == -1) {
+	if (terminal_get_window_size(&roku_config.window_size.rows,
+								 &roku_config.window_size.cols) == -1) {
 		die("terminal_get_window_size: couldn't get window size");
 	}
 }
@@ -109,7 +111,8 @@ void editor_refresh_screen()
 	editor_draw_row_tildes(&buf);
 
 	char buffer[32];
-	snprintf(buffer, sizeof(buffer), "\x1b[%d;%dH", roku_config.cy + 1, roku_config.cx + 1);
+	snprintf(buffer, sizeof(buffer), "\x1b[%d;%dH", roku_config.cy + 1,
+			 roku_config.cx + 1);
 	editor_buffer_append(&buf, buffer, strlen(buffer));
 
 	editor_buffer_append(&buf, "\x1b[?25h", 6);
@@ -125,7 +128,8 @@ void editor_buffer_append(struct append_buf *buf, const char *s, int len)
 {
 	char *new = realloc(buf->buffer, buf->size + len);
 
-	if (new == NULL) return;
+	if (new == NULL)
+		return;
 	memcpy(&new[buf->size], s, len);
 	buf->buffer = new;
 	buf->size += len;

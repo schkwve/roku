@@ -42,31 +42,45 @@ int input_get_keypress()
 			if (seq[1] >= '0' && seq[1] <= '9') {
 				if (read(STDIN_FILENO, &seq[2], 1) != 1)
 					return '\x1b';
-				
+
 				if (seq[2] == '~') {
 					switch (seq[1]) {
-						case '1': return HOME_KEY;
-						case '4': return END_KEY;
-						case '5': return PAGE_UP;
-						case '6': return PAGE_DOWN;
-						case '7': return HOME_KEY;
-						case '8': return END_KEY;
+					case '1':
+						return HOME_KEY;
+					case '4':
+						return END_KEY;
+					case '5':
+						return PAGE_UP;
+					case '6':
+						return PAGE_DOWN;
+					case '7':
+						return HOME_KEY;
+					case '8':
+						return END_KEY;
 					}
 				}
 			} else {
 				switch (seq[1]) {
-					case 'A': return ARROW_UP;
-					case 'B': return ARROW_DOWN;
-					case 'C': return ARROW_RIGHT;
-					case 'D': return ARROW_LEFT;
-					case 'H': return HOME_KEY;
-					case 'F': return END_KEY;
+				case 'A':
+					return ARROW_UP;
+				case 'B':
+					return ARROW_DOWN;
+				case 'C':
+					return ARROW_RIGHT;
+				case 'D':
+					return ARROW_LEFT;
+				case 'H':
+					return HOME_KEY;
+				case 'F':
+					return END_KEY;
 				}
 			}
 		} else if (seq[0] == 'O') {
 			switch (seq[1]) {
-				case 'H': return HOME_KEY;
-				case 'F': return END_KEY;
+			case 'H':
+				return HOME_KEY;
+			case 'F':
+				return END_KEY;
 			}
 		}
 
@@ -83,32 +97,30 @@ void input_handle_keypress()
 {
 	int c = input_get_keypress();
 	switch (c) {
-		case CTRL_KEY('q'):
-			terminal_clear_screen();
-			exit(0);
-			break;
-		case ARROW_LEFT:
-		case ARROW_RIGHT:
-		case ARROW_UP:
-		case ARROW_DOWN:
-			editor_move_curpos(c);
-			break;
-		case HOME_KEY:
-			roku_config.cx = 0;
-			break;
-		case END_KEY:
-			roku_config.cx = roku_config.window_size.cols - 1;
-			break;
-		case PAGE_UP:
-		case PAGE_DOWN:
-			{
-				int times = roku_config.window_size.rows;
-				while (times--) {
-					editor_move_curpos(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
-				}
-			}
-			break;
-		default:
-			break;
+	case CTRL_KEY('q'):
+		terminal_clear_screen();
+		exit(0);
+		break;
+	case ARROW_LEFT:
+	case ARROW_RIGHT:
+	case ARROW_UP:
+	case ARROW_DOWN:
+		editor_move_curpos(c);
+		break;
+	case HOME_KEY:
+		roku_config.cx = 0;
+		break;
+	case END_KEY:
+		roku_config.cx = roku_config.window_size.cols - 1;
+		break;
+	case PAGE_UP:
+	case PAGE_DOWN: {
+		int times = roku_config.window_size.rows;
+		while (times--) {
+			editor_move_curpos(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+		}
+	} break;
+	default:
+		break;
 	}
 }
