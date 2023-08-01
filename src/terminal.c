@@ -41,7 +41,6 @@ int terminal_get_window_size(int *rows, int *cols)
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
 		if (write(STDOUT_FILENO, "\x1b[999C\x1b[999B]]", 12) != 12) return -1;
 		return terminal_get_curpos(rows, cols);
-		return -1;
 	} else {
 		*cols = ws.ws_col;
 		*rows = ws.ws_row;

@@ -15,6 +15,7 @@
 typedef struct {
 	struct termios orig_termios;
 	terminal_winsize_t window_size;
+	int cx, cy;
 } roku_config_t;
 
 /**

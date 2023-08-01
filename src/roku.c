@@ -27,12 +27,8 @@ int main()
 
 	// we couldn't exit the program without this
 	while (1) {
-		terminal_clear_screen();
-		editor_draw_row_tildes();
-
+		editor_refresh_screen();
 		input_handle_keypress();
-
-		write(STDOUT_FILENO, "\x1b[H]", 3);
 	}
 
 	return 0;
