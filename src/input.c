@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include "editor.h"
+#include "file.h"
 #include "input.h"
 #include "terminal.h"
 #include "roku.h"
@@ -47,6 +48,7 @@ int input_get_keypress()
 					switch (seq[1]) {
 					case '1':
 						return HOME_KEY;
+					case '3': return DEL_KEY;
 					case '4':
 						return END_KEY;
 					case '5':
@@ -97,9 +99,23 @@ void input_handle_keypress()
 {
 	int c = input_get_keypress();
 	switch (c) {
+	/* Special characters */
+	case '\r':
+		break;
+	case BACKSPACE:
+	case DEL_KEY:
+		break;
+	case CTRL_KEY('l'):
+	case '\x1b':
+		break;
+	
+	/* General keys */
 	case CTRL_KEY('q'):
 		terminal_clear_screen();
 		exit(0);
+		break;
+	case CTRL_KEY('s'):
+		file_save();
 		break;
 	case ARROW_LEFT:
 	case ARROW_RIGHT:
@@ -132,6 +148,7 @@ void input_handle_keypress()
 		}
 	} break;
 	default:
+		editor_insert_char(c);
 		break;
 	}
 }

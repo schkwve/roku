@@ -88,8 +88,12 @@ void editor_draw_statusbar(struct append_buf *buf)
 	// this text is aligned to the right edge of the window.
 	char rstatus[80];
 
-	int len = snprintf(status, sizeof(status), "%.20s - %d lines", roku_config.filename ? roku_config.filename : "[No Name]", roku_config.num_rows);
-	int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", roku_config.cy + 1, roku_config.num_rows);
+	int len =
+		snprintf(status, sizeof(status), "%.20s - %d lines",
+				 roku_config.filename ? roku_config.filename : "[No Name]",
+				 roku_config.num_rows);
+	int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", roku_config.cy + 1,
+						roku_config.num_rows);
 	if (len > roku_config.window_size.cols) {
 		len = roku_config.window_size.cols;
 	}
@@ -216,6 +220,35 @@ void editor_init()
 
 	// status bar & message bar
 	roku_config.window_size.rows -= 2;
+}
+
+/**
+ * @brief	This routine inserts a character into the current row.
+*/
+void editor_insert_char(int c)
+{
+	if (roku_config.cy == roku_config.num_rows) {
+		editor_append_row("", 0);
+	}
+
+	editor_insert_into_row(&roku_config.row[roku_config.cy], roku_config.cx, c);
+	roku_config.cx++;
+}
+
+/**
+ * @brief	This routine reallocates the row buffer to fit a new character.
+ */
+void editor_insert_into_row(editor_row_t *row, int at, int c)
+{
+	if (at < 0 || at > row->size) {
+		at = row->size;
+	}
+
+	row->buf = realloc(row->buf, row->size + 2);
+	memmove(&row->buf[at + 1], &row->buf[at], row->size - at + 1);
+	row->size++;
+	row->buf[at] = c;
+	editor_update_row(row);
 }
 
 /**

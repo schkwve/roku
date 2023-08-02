@@ -55,6 +55,16 @@ void editor_move_curpos(int key);
 void editor_init();
 
 /**
+ * @brief	This routine inserts a character into the current row.
+*/
+void editor_insert_char(int c);
+
+/**
+ * @brief	This routine reallocates the row buffer to fit a new character.
+ */
+void editor_insert_into_row(editor_row_t *row, int at, int c);
+
+/**
  * @brief	This routine appends a row to the render buffer
  */
 void editor_append_row(char *s, size_t len);

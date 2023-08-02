@@ -105,7 +105,7 @@ void terminal_enable_raw()
 	//	~ECHO - no echoing
 	//	~ICANON - read input byte-by-byte
 	//	~IEXTEN - disable ctrl-v processing
-	//			(also fixes ctrl-o on macOS)
+	//			(also fixes ctrl-o issues on macOS)
 	//	~ISIG - disable signal processing (SIGINT, ...)
 	////////////////////////////////////////////////////////////////////////////
 	// these flags are most likely useless and might be removed in the future

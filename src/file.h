@@ -14,4 +14,16 @@
  */
 void file_open(char *filename);
 
+/**
+ * @brief	Saves the buffer into a file.
+ */
+void file_save();
+
+/**
+ * @brief	This routine converts all row buffers to a single string.
+ * 
+ * @return	Converted string buffer
+ */
+char *file_rows_to_string(int *buflen);
+
 #endif // __FILE_H_
