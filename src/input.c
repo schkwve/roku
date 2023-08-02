@@ -15,6 +15,7 @@
 #include "file.h"
 #include "input.h"
 #include "terminal.h"
+#include "find.h"
 #include "roku.h"
 
 /**
@@ -124,6 +125,9 @@ void input_handle_keypress()
 		}
 		terminal_clear_screen();
 		exit(0);
+		break;
+	case CTRL_KEY('f'):
+		find();
 		break;
 	case CTRL_KEY('s'):
 		file_save();

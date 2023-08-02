@@ -9,6 +9,7 @@
 #define __ROKU_H_
 
 #include <termios.h>
+#include <time.h>
 
 #include "terminal.h"
 

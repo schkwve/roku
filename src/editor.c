@@ -135,7 +135,7 @@ void editor_draw_messagebar(struct append_buf *buf)
  * 
  * @return	User's input.
  */
-char *editor_display_prompt(char *prompt)
+char *editor_display_prompt(char *prompt, void *(callback)(char *, int))
 {
 	size_t bufsize = 128;
 	char *buf = malloc(bufsize);
@@ -154,10 +154,16 @@ char *editor_display_prompt(char *prompt)
 			}
 		} else if (c == '\x1b') {
 			editor_set_status("");
+			if (callback) {
+				callback(buf, c);
+			}
 			free(buf);
 			return NULL;
 		} else if (c == '\r' || c == '\n') {
 			if (buflen != 0) {
+				if (callback) {
+					callback(buf, c);
+				}
 				editor_set_status("");
 				return buf;
 			}
@@ -168,6 +174,9 @@ char *editor_display_prompt(char *prompt)
 			}
 			buf[buflen++] = c;
 			buf[buflen] = '\0';
+		}
+		if (callback) {
+			callback(buf, c);
 		}
 	}
 }
@@ -524,6 +533,30 @@ int editor_row_cx_to_rx(editor_row_t *row, int cx)
 		render_x++;
 	}
 	return render_x;
+}
+
+/**
+ * @brief	This routine converts the render index into a buffer index
+ * 
+ * @return	cur_x value
+ */
+int editor_row_rx_to_cx(editor_row_t *row, int rx)
+{
+	int render_x = 0;
+	int cx;
+
+	for (cx = 0; cx < row->size; cx++) {
+		if (row->buf[cx] == '\t') {
+			render_x += (TAB_WIDTH - 1) - (render_x % TAB_WIDTH);
+		}
+		render_x++;
+
+		if (render_x > rx) {
+			return cx;
+		}
+	}
+
+	return cx;
 }
 
 /**

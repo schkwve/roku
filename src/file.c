@@ -54,7 +54,7 @@ void file_open(char *filename)
 void file_save()
 {
 	if (roku_config.filename == NULL) {
-		roku_config.filename = editor_display_prompt("Save as: %s");
+		roku_config.filename = editor_display_prompt("Save as: %s", NULL);
 		if (roku_config.filename == NULL) {
 			editor_set_status("Aborted");
 			return;

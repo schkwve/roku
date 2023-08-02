@@ -43,7 +43,7 @@ void editor_draw_messagebar(struct append_buf *buf);
  * 
  * @return	User's input.
  */
-char *editor_display_prompt(char *prompt);
+char *editor_display_prompt(char *prompt, void *(callback)(char *, int));
 
 /**
  * @brief	Sets the status message to be shown on the status bar.
@@ -128,6 +128,13 @@ void editor_handle_scrolling();
  * @return	render_x value
  */
 int editor_row_cx_to_rx(editor_row_t *row, int cx);
+
+/**
+ * @brief	This routine converts the render index into a buffer index
+ * 
+ * @return	cur_x value
+ */
+int editor_row_rx_to_cx(editor_row_t *row, int rx);
 
 /**
  * @brief	This routine appends a string to the write buffer
