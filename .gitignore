@@ -1,5 +1,6 @@
 .vscode/
 docs/
 
+.DS_Store
 *.o
 roku
