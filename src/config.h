@@ -9,7 +9,7 @@
 #define __CONFIG_H_
 
 #define ROKU_WELCOME_MESSAGE "Roku Text Editor v%s"
-#define ROKU_VERSION "0.0.1"
+#define ROKU_VERSION "0.1.0"
 
 ////
 #define TAB_WIDTH 8
