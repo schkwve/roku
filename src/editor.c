@@ -52,7 +52,7 @@ void editor_draw_row(struct append_buf *buf)
 				editor_buffer_append(buf, "~", 1);
 			}
 		} else {
-			int len = roku_config.row[file_row].size - roku_config.col_off;
+			int len = roku_config.row[file_row].render_size - roku_config.col_off;
 			if (len < 0) {
 				len = 0;
 			}
@@ -62,7 +62,7 @@ void editor_draw_row(struct append_buf *buf)
 			}
 
 			editor_buffer_append(
-				buf, &roku_config.row[file_row].buf[roku_config.col_off], len);
+				buf, &roku_config.row[file_row].render[roku_config.col_off], len);
 		}
 
 		editor_buffer_append(buf, "\x1b[K", 3);
@@ -146,6 +146,48 @@ void editor_init()
 								 &roku_config.window_size.cols) == -1) {
 		die("terminal_get_window_size: couldn't get window size");
 	}
+}
+
+/**
+ * @brief	This routine appends a row to the render buffer
+ */
+void editor_append_row(char *s, size_t len)
+{
+	roku_config.row = realloc(
+			roku_config.row, sizeof(editor_row_t) * (roku_config.num_rows + 1));
+
+		int at = roku_config.num_rows;
+		
+		roku_config.row[at].size = len;
+		roku_config.row[at].buf = malloc(len + 1);
+		
+		memcpy(roku_config.row[at].buf, s, len);
+
+		roku_config.row[at].buf[len] = '\0';
+		
+		roku_config.row[at].render_size = 0;
+		roku_config.row[at].render = NULL;
+
+		editor_update_row(&roku_config.row[at]);
+
+		roku_config.num_rows++;
+}
+
+/**
+ * @brief	This routine updates the render buffer of a row.
+ */
+void editor_update_row(editor_row_t *row)
+{
+	free(row->render);
+	row->render = malloc(row->size + 1);
+
+	int idx = 0;
+	for (int i = 0; i < row->size; i++) {
+		row->render[idx++] = row->buf[i];
+	}
+	row->render[idx] = '\0';
+
+	row->render_size = idx;
 }
 
 /**

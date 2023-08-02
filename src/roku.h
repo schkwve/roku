@@ -18,7 +18,9 @@
  */
 typedef struct {
 	int size;
+	int render_size;
 	char *buf;
+	char *render;
 } editor_row_t;
 
 /**

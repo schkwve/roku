@@ -9,6 +9,8 @@
 #ifndef __EDITOR_H_
 #define __EDITOR_H_
 
+#include "roku.h"
+
 #define APPEND_BUF_INIT {NULL, 0}
 
 /**
@@ -36,6 +38,16 @@ void editor_move_curpos(int key);
  * @brief	This routine initializes the editor interface
  */
 void editor_init();
+
+/**
+ * @brief	This routine appends a row to the render buffer
+ */
+void editor_append_row(char *s, size_t len);
+
+/**
+ * @brief	This routine updates the render buffer of a row.
+ */
+void editor_update_row(editor_row_t *row);
 
 /**
  * @brief	This routine is called upon screen refresh.

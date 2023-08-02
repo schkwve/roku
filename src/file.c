@@ -12,6 +12,7 @@
 
 #include "file.h"
 #include "roku.h"
+#include "editor.h"
 
 /**
  * @brief	This routine opens the specified file
@@ -33,15 +34,7 @@ void file_open(char *filename)
 			length--;
 		}
 
-		roku_config.row = realloc(
-			roku_config.row, sizeof(editor_row_t) * (roku_config.num_rows + 1));
-
-		int at = roku_config.num_rows;
-		roku_config.row[at].size = length;
-		roku_config.row[at].buf = malloc(length + 1);
-		memcpy(roku_config.row[at].buf, line, length);
-		roku_config.row[at].buf[length] = '\0';
-		roku_config.num_rows++;
+		editor_append_row(line, length);
 	}
 	free(line);
 	fclose(fp);
