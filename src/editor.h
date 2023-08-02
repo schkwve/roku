@@ -20,9 +20,11 @@ struct append_buf {
 };
 
 /**
- * @brief	This routine draws tildes at the beginning of every line
+ * @brief	This routine draws every row on the screen.
+ * 			If a row hasn't been specified to be drawn,
+ * 			the first character of it is replaced by a tilde (~).
  */
-void editor_draw_row_tildes(struct append_buf *buf);
+void editor_draw_row(struct append_buf *buf);
 
 /**
  * @brief	This routine informs the editor_refresh_screen()
@@ -39,6 +41,12 @@ void editor_init();
  * @brief	This routine is called upon screen refresh.
  */
 void editor_refresh_screen();
+
+/**
+ * @brief	This routine handles buffer scrolling
+ * 			if requested.
+ */
+void editor_handle_scrolling();
 
 /**
  * @brief	This routine appends a string to the write buffer

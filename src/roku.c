@@ -13,6 +13,7 @@
 #include "terminal.h"
 #include "editor.h"
 #include "input.h"
+#include "file.h"
 #include "roku.h"
 
 roku_config_t roku_config;
@@ -20,10 +21,13 @@ roku_config_t roku_config;
 /**
  * @brief	Entry point.
  */
-int main()
+int main(int argc, char *argv[])
 {
 	terminal_enable_raw();
 	editor_init();
+	if (argc >= 2) {
+		file_open(argv[1]);
+	}
 
 	// we couldn't exit the program without this
 	while (1) {

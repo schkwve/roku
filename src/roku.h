@@ -13,12 +13,24 @@
 #include "terminal.h"
 
 /**
+ * @brief	This structure contains information about every row
+ * 			displayed on the screen.
+ */
+typedef struct {
+	int size;
+	char *buf;
+} editor_row_t;
+
+/**
  * @brief	This structure contains information about the Roku configuration.
  */
 typedef struct {
 	struct termios orig_termios;
 	terminal_winsize_t window_size;
 	int cx, cy;
+	int row_y; // row offset
+	int num_rows;
+	editor_row_t *row;
 } roku_config_t;
 
 /**

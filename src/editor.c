@@ -17,32 +17,43 @@
 #include "roku.h"
 
 /**
- * @brief	This routine draws tildes at the beginning of every line
+ * @brief	This routine draws every row on the screen.
+ * 			If a row hasn't been specified to be drawn,
+ * 			the first character of it is replaced by a tilde (~).
  */
-void editor_draw_row_tildes(struct append_buf *buf)
+void editor_draw_row(struct append_buf *buf)
 {
 	for (int y = 0; y < roku_config.window_size.rows; y++) {
-		if (y == roku_config.window_size.rows / 3) {
-			char welcome_msg[80];
-			int welcome_msg_len = snprintf(welcome_msg, sizeof(welcome_msg),
-										   ROKU_WELCOME_MESSAGE, ROKU_VERSION);
-			if (welcome_msg_len > roku_config.window_size.cols) {
-				welcome_msg_len = roku_config.window_size.cols;
-			}
+		int file_row = y + roku_config.row_y;
+		if (file_row >= roku_config.num_rows) {
+			if (roku_config.num_rows == 0 && y == roku_config.window_size.rows / 3) {
+				char welcome_msg[80];
+				int welcome_msg_len = snprintf(welcome_msg, sizeof(welcome_msg),
+											   ROKU_WELCOME_MESSAGE, ROKU_VERSION);
+				if (welcome_msg_len > roku_config.window_size.cols) {
+					welcome_msg_len = roku_config.window_size.cols;
+				}
 
-			int padding = (roku_config.window_size.cols - welcome_msg_len) / 2;
-			if (padding) {
+				int padding = (roku_config.window_size.cols - welcome_msg_len) / 2;
+				if (padding) {
+					editor_buffer_append(buf, "~", 1);
+					padding--;
+				}
+
+				while (padding--) {
+					editor_buffer_append(buf, " ", 1);
+				}
+
+				editor_buffer_append(buf, welcome_msg, welcome_msg_len);
+			} else {
 				editor_buffer_append(buf, "~", 1);
-				padding--;
 			}
-
-			while (padding--) {
-				editor_buffer_append(buf, " ", 1);
-			}
-
-			editor_buffer_append(buf, welcome_msg, welcome_msg_len);
 		} else {
-			editor_buffer_append(buf, "~", 1);
+			int len = roku_config.row[file_row].size;
+			if (len > roku_config.window_size.cols)
+				len = roku_config.window_size.cols;
+			
+			editor_buffer_append(buf, roku_config.row[file_row].buf, len);
 		}
 
 		editor_buffer_append(buf, "\x1b[K", 3);
@@ -77,7 +88,7 @@ void editor_move_curpos(int key)
 		}
 		break;
 	case ARROW_DOWN:
-		if (roku_config.cy != roku_config.window_size.rows - 1) {
+		if (roku_config.cy < roku_config.num_rows) {
 			roku_config.cy++;
 		}
 		break;
@@ -91,6 +102,9 @@ void editor_init()
 {
 	roku_config.cx = 0;
 	roku_config.cy = 0;
+	roku_config.row_y = 0;
+	roku_config.num_rows = 0;
+	roku_config.row = NULL;
 
 	if (terminal_get_window_size(&roku_config.window_size.rows,
 								 &roku_config.window_size.cols) == -1) {
@@ -105,13 +119,15 @@ void editor_refresh_screen()
 {
 	struct append_buf buf = APPEND_BUF_INIT;
 
+	editor_handle_scrolling();
+
 	editor_buffer_append(&buf, "\x1b[?25l", 6);
 	editor_buffer_append(&buf, "\x1b[H", 3);
 
-	editor_draw_row_tildes(&buf);
+	editor_draw_row(&buf);
 
 	char buffer[32];
-	snprintf(buffer, sizeof(buffer), "\x1b[%d;%dH", roku_config.cy + 1,
+	snprintf(buffer, sizeof(buffer), "\x1b[%d;%dH", (roku_config.cy - roku_config.row_y) + 1,
 			 roku_config.cx + 1);
 	editor_buffer_append(&buf, buffer, strlen(buffer));
 
@@ -119,6 +135,20 @@ void editor_refresh_screen()
 
 	write(STDOUT_FILENO, buf.buffer, buf.size);
 	editor_buffer_free(&buf);
+}
+
+/**
+ * @brief	This routine handles buffer scrolling
+ * 			if requested.
+ */
+void editor_handle_scrolling()
+{
+	if (roku_config.cy < roku_config.row_y) {
+		roku_config.row_y = roku_config.cy;
+	}
+	if (roku_config.cy >= roku_config.row_y + roku_config.window_size.rows) {
+		roku_config.row_y = roku_config.cy - roku_config.window_size.rows + 1;
+	}
 }
 
 /**
