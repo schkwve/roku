@@ -97,13 +97,19 @@ int input_get_keypress()
  */
 void input_handle_keypress()
 {
+	static int quit_times = 1;
 	int c = input_get_keypress();
 	switch (c) {
 	/* Special characters */
 	case '\r':
+	case '\n':
+		editor_insert_newline();
 		break;
 	case BACKSPACE:
 	case DEL_KEY:
+		if (c == DEL_KEY)
+			editor_move_curpos(ARROW_RIGHT);
+		editor_remove_char();
 		break;
 	case CTRL_KEY('l'):
 	case '\x1b':
@@ -111,6 +117,11 @@ void input_handle_keypress()
 	
 	/* General keys */
 	case CTRL_KEY('q'):
+		if (roku_config.file_dirty && quit_times > 0) {
+			editor_set_status("File has unsaved changes. Press Ctrl-q again to quit.");
+			quit_times--;
+			return;
+		}
 		terminal_clear_screen();
 		exit(0);
 		break;
@@ -151,4 +162,6 @@ void input_handle_keypress()
 		editor_insert_char(c);
 		break;
 	}
+
+	quit_times = 1;
 }

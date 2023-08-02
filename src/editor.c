@@ -84,14 +84,14 @@ void editor_draw_statusbar(struct append_buf *buf)
 	editor_buffer_append(buf, "\x1b[7m", 4);
 
 	char status[80];
-
 	// this text is aligned to the right edge of the window.
 	char rstatus[80];
 
 	int len =
-		snprintf(status, sizeof(status), "%.20s - %d lines",
+		snprintf(status, sizeof(status), "%.20s - %d lines%s",
 				 roku_config.filename ? roku_config.filename : "[No Name]",
-				 roku_config.num_rows);
+				 roku_config.num_rows,
+				 roku_config.file_dirty ? " (modified)" : "");
 	int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", roku_config.cy + 1,
 						roku_config.num_rows);
 	if (len > roku_config.window_size.cols) {
@@ -209,6 +209,7 @@ void editor_init()
 	roku_config.col_off = 0;
 	roku_config.num_rows = 0;
 	roku_config.row = NULL;
+	roku_config.file_dirty = 0;
 	roku_config.filename = NULL;
 	roku_config.status_msg[0] = '\0';
 	roku_config.status_msg_time = 0;
@@ -224,15 +225,54 @@ void editor_init()
 
 /**
  * @brief	This routine inserts a character into the current row.
-*/
+ */
 void editor_insert_char(int c)
 {
 	if (roku_config.cy == roku_config.num_rows) {
-		editor_append_row("", 0);
+		editor_append_row(roku_config.num_rows, "", 0);
 	}
 
 	editor_insert_into_row(&roku_config.row[roku_config.cy], roku_config.cx, c);
 	roku_config.cx++;
+}
+
+/**
+ * @brief	This routine deletes a character from the current row
+ */
+void editor_remove_char()
+{
+	if (roku_config.cy == roku_config.num_rows) {
+		return;
+	}
+	if (roku_config.cx == 0 && roku_config.cy == 0) {
+		return;
+	}
+
+	editor_row_t *row = &roku_config.row[roku_config.cy];
+	if (roku_config.cx > 0) {
+		editor_remove_from_row(row, roku_config.cx - 1);
+		roku_config.cx--;
+	} else {
+		roku_config.cx = roku_config.row[roku_config.cy - 1].size;
+		editor_row_append_string(&roku_config.row[roku_config.cy - 1], row->buf, row->size);
+		editor_remove_row(roku_config.cy);
+		roku_config.cy--;
+	}
+}
+
+/**
+ * @brief	This routine removes a character from the current row buffer.
+ */
+void editor_remove_from_row(editor_row_t *row, int at)
+{
+	if (at < 0 || at >= row->size) {
+		return;
+	}
+
+	memmove(&row->buf[at], &row->buf[at + 1], row->size - at);
+	row->size--;
+	editor_update_row(row);
+	roku_config.file_dirty++;
 }
 
 /**
@@ -249,17 +289,21 @@ void editor_insert_into_row(editor_row_t *row, int at, int c)
 	row->size++;
 	row->buf[at] = c;
 	editor_update_row(row);
+	roku_config.file_dirty++;
 }
 
 /**
  * @brief	This routine appends a row to the render buffer
  */
-void editor_append_row(char *s, size_t len)
+void editor_append_row(int at, char *s, size_t len)
 {
+	if (at < 0 || at > roku_config.num_rows) {
+		return;
+	}
+
 	roku_config.row = realloc(roku_config.row, sizeof(editor_row_t) *
 												   (roku_config.num_rows + 1));
-
-	int at = roku_config.num_rows;
+	memmove(&roku_config.row[at + 1], &roku_config.row[at], sizeof(editor_row_t) * (roku_config.num_rows - at));
 
 	roku_config.row[at].size = len;
 	roku_config.row[at].buf = malloc(len + 1);
@@ -274,6 +318,44 @@ void editor_append_row(char *s, size_t len)
 	editor_update_row(&roku_config.row[at]);
 
 	roku_config.num_rows++;
+	roku_config.file_dirty++;
+}
+
+/**
+ * @brief	This routine appends a string to the specified row.
+ */
+void editor_row_append_string(editor_row_t *row, char *s, size_t len)
+{
+	row->buf = realloc(row->buf, row->size + len + 1);
+	memcpy(&row->buf[row->size], s, len);
+	row->size += len;
+	row->buf[row->size] = '\0';
+	editor_update_row(row);
+	roku_config.file_dirty++;
+}
+
+/**
+ * @brief	This routine frees the row buffer
+ */
+void editor_free_row(editor_row_t *row)
+{
+	free(row->render);
+	free(row->buf);
+}
+
+/**
+ * @brief	This routine removes a row
+ */
+void editor_remove_row(int at)
+{
+	if (at < 0 || at >= roku_config.num_rows) {
+		return;
+	}
+
+	editor_free_row(&roku_config.row[at]);
+	memmove(&roku_config.row[at], &roku_config.row[at + 1], sizeof(editor_row_t) * (roku_config.num_rows - at - 1));
+	roku_config.num_rows--;
+	roku_config.file_dirty++;
 }
 
 /**
@@ -306,6 +388,25 @@ void editor_update_row(editor_row_t *row)
 
 	row->render[idx] = '\0';
 	row->render_size = idx;
+}
+
+/**
+ * @brief	This routine inserts a newline
+ */
+void editor_insert_newline()
+{
+	if (roku_config.cx == 0) {
+		editor_append_row(roku_config.cy, "", 0);
+	} else {
+		editor_row_t *row = &roku_config.row[roku_config.cy];
+		editor_append_row(roku_config.cy + 1, &row->buf[roku_config.cx], row->size - roku_config.cx);
+		row = &roku_config.row[roku_config.cy];
+		row->size = roku_config.cx;
+		row->buf[row->size] = '\0';
+		editor_update_row(row);
+	}
+	roku_config.cy++;
+	roku_config.cx = 0;
 }
 
 /**

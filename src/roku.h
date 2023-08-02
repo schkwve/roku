@@ -35,6 +35,7 @@ typedef struct {
 	int col_off;
 	int num_rows;
 	editor_row_t *row;
+	int file_dirty;
 	char *filename;
 	char status_msg[80];
 	time_t status_msg_time;

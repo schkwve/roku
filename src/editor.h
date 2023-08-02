@@ -60,6 +60,16 @@ void editor_init();
 void editor_insert_char(int c);
 
 /**
+ * @brief	This routine deletes a character from the current row
+ */
+void editor_remove_char();
+
+/**
+ * @brief	This routine removes a character from the current row buffer.
+ */
+void editor_remove_from_row(editor_row_t *row, int at);
+
+/**
  * @brief	This routine reallocates the row buffer to fit a new character.
  */
 void editor_insert_into_row(editor_row_t *row, int at, int c);
@@ -67,12 +77,32 @@ void editor_insert_into_row(editor_row_t *row, int at, int c);
 /**
  * @brief	This routine appends a row to the render buffer
  */
-void editor_append_row(char *s, size_t len);
+void editor_append_row(int at, char *s, size_t len);
+
+/**
+ * @brief	This routine appends a string to the specified row.
+ */
+void editor_row_append_string(editor_row_t *row, char *s, size_t len);
+
+/**
+ * @brief	This routine frees the row buffer
+ */
+void editor_free_row(editor_row_t *row);
+
+/**
+ * @brief	This routine removes a row
+ */
+void editor_remove_row(int at);
 
 /**
  * @brief	This routine updates the render buffer of a row.
  */
 void editor_update_row(editor_row_t *row);
+
+/**
+ * @brief	This routine inserts a newline
+ */
+void editor_insert_newline();
 
 /**
  * @brief	This routine is called upon screen refresh.

@@ -6,6 +6,7 @@
  */
 
 #include <sys/types.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,10 +40,12 @@ void file_open(char *filename)
 			length--;
 		}
 
-		editor_append_row(line, length);
+		editor_append_row(roku_config.num_rows, line, length);
 	}
 	free(line);
 	fclose(fp);
+
+	roku_config.file_dirty = 0;
 }
 
 /**
@@ -58,10 +61,21 @@ void file_save()
 	char *buf = file_rows_to_string(&len);
 
 	int fd = open(roku_config.filename, O_RDWR | O_CREAT, 0644);
-	ftruncate(fd, len);
-	write(fd, buf, len);
-	close(fd);
+	if (fd != -1) {
+		if (ftruncate(fd, len) != -1) {
+			if (write(fd, buf, len) == len) {
+				close(fd);
+				free(buf);
+				roku_config.file_dirty = 0;
+				editor_set_status("%d bytes written", len);
+				return;
+			}
+		}
+		close(fd);
+	}
+
 	free(buf);
+	editor_set_status("An error occured while saving: %s", strerror(errno));
 }
 
 /**
