@@ -53,9 +53,13 @@ void file_open(char *filename)
  */
 void file_save()
 {
-	// @todo Add a filename prompt
-	if (roku_config.filename == NULL)
-		return;
+	if (roku_config.filename == NULL) {
+		roku_config.filename = editor_display_prompt("Save as: %s");
+		if (roku_config.filename == NULL) {
+			editor_set_status("Aborted");
+			return;
+		}
+	}
 	
 	int len;
 	char *buf = file_rows_to_string(&len);

@@ -39,6 +39,13 @@ void editor_draw_statusbar(struct append_buf *buf);
 void editor_draw_messagebar(struct append_buf *buf);
 
 /**
+ * @brief	This routine displays a prompt in the message bar.
+ * 
+ * @return	User's input.
+ */
+char *editor_display_prompt(char *prompt);
+
+/**
  * @brief	Sets the status message to be shown on the status bar.
  */
 void editor_set_status(const char *fmt, ...);

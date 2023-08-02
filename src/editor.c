@@ -7,6 +7,7 @@
  */
 
 #include <unistd.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -126,6 +127,48 @@ void editor_draw_messagebar(struct append_buf *buf)
 	}
 	if (msg_len && time(NULL) - roku_config.status_msg_time < 5) {
 		editor_buffer_append(buf, roku_config.status_msg, msg_len);
+	}
+}
+
+/**
+ * @brief	This routine displays a prompt in the message bar.
+ * 
+ * @return	User's input.
+ */
+char *editor_display_prompt(char *prompt)
+{
+	size_t bufsize = 128;
+	char *buf = malloc(bufsize);
+
+	size_t buflen = 0;
+	buf[0] = '\0';
+
+	while (1) {
+		editor_set_status(prompt, buf);
+		editor_refresh_screen();
+
+		int c = input_get_keypress();
+		if (c == DEL_KEY || c == BACKSPACE) {
+			if (buflen != 0) {
+				buf[--buflen] = '\0';
+			}
+		} else if (c == '\x1b') {
+			editor_set_status("");
+			free(buf);
+			return NULL;
+		} else if (c == '\r' || c == '\n') {
+			if (buflen != 0) {
+				editor_set_status("");
+				return buf;
+			}
+		} else if (!iscntrl(c) && c < 128) {
+			if (buflen == bufsize - 1) {
+				bufsize *= 2;
+				buf = realloc(buf, bufsize);
+			}
+			buf[buflen++] = c;
+			buf[buflen] = '\0';
+		}
 	}
 }
 
