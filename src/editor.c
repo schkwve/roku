@@ -91,11 +91,17 @@ void editor_move_curpos(int key)
 	case ARROW_LEFT:
 		if (roku_config.cx != 0) {
 			roku_config.cx--;
+		} else if (roku_config.cy > 0) {
+			roku_config.cy--;
+			roku_config.cx = roku_config.row[roku_config.cy].size;
 		}
 		break;
 	case ARROW_RIGHT:
 		if (row && roku_config.cx < row->size) {
 			roku_config.cx++;
+		} else if (row && roku_config.cx == row->size) {
+			roku_config.cy++;
+			roku_config.cx = 0;
 		}
 		break;
 	case ARROW_UP:
@@ -108,6 +114,19 @@ void editor_move_curpos(int key)
 			roku_config.cy++;
 		}
 		break;
+	}
+
+	// roku_config.cy could point to a different line
+	// than before
+	if (roku_config.cy >= roku_config.num_rows) {
+		row = NULL;
+	} else {
+		row = &roku_config.row[roku_config.cy];
+	}
+
+	int row_len = row ? row->size : 0;
+	if (roku_config.cx > row_len) {
+		roku_config.cx = row_len;
 	}
 }
 
