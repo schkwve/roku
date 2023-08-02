@@ -111,7 +111,9 @@ void input_handle_keypress()
 		roku_config.cx = 0;
 		break;
 	case END_KEY:
-		roku_config.cx = roku_config.window_size.cols - 1;
+		if (roku_config.cy < roku_config.num_rows) {
+			roku_config.cx = roku_config.row[roku_config.cy].size;
+		}
 		break;
 	case PAGE_UP:
 	case PAGE_DOWN: {
