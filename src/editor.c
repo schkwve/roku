@@ -80,6 +80,13 @@ void editor_draw_row(struct append_buf *buf)
  */
 void editor_move_curpos(int key)
 {
+	editor_row_t *row;
+	if (roku_config.cy >= roku_config.num_rows) {
+		row = NULL;
+	} else {
+		row = &roku_config.row[roku_config.cy];
+	}
+
 	switch (key) {
 	case ARROW_LEFT:
 		if (roku_config.cx != 0) {
@@ -87,7 +94,9 @@ void editor_move_curpos(int key)
 		}
 		break;
 	case ARROW_RIGHT:
-		roku_config.cx++;
+		if (row && roku_config.cx < row->size) {
+			roku_config.cx++;
+		}
 		break;
 	case ARROW_UP:
 		if (roku_config.cy != 0) {
