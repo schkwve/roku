@@ -28,7 +28,8 @@ typedef struct {
 	struct termios orig_termios;
 	terminal_winsize_t window_size;
 	int cx, cy;
-	int row_y; // row offset
+	int row_off;
+	int col_off;
 	int num_rows;
 	editor_row_t *row;
 } roku_config_t;

@@ -28,12 +28,13 @@ void file_open(char *filename)
 	size_t linecap = 0;
 	ssize_t length;
 	while ((length = getline(&line, &linecap, fp)) != -1) {
-		while (length > 0 && (line[length - 1] == '\n' ||
-								line[length - 1] == '\r')) {
-									length--;
-								}
+		while (length > 0 &&
+			   (line[length - 1] == '\n' || line[length - 1] == '\r')) {
+			length--;
+		}
 
-		roku_config.row = realloc(roku_config.row, sizeof(editor_row_t) * (roku_config.num_rows + 1));
+		roku_config.row = realloc(
+			roku_config.row, sizeof(editor_row_t) * (roku_config.num_rows + 1));
 
 		int at = roku_config.num_rows;
 		roku_config.row[at].size = length;
