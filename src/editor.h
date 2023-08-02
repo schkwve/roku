@@ -61,6 +61,13 @@ void editor_refresh_screen();
 void editor_handle_scrolling();
 
 /**
+ * @brief	This routine converts the buffer index into a render index
+ * 
+ * @return	render_x value
+ */
+int editor_row_cx_to_rx(editor_row_t *row, int cx);
+
+/**
  * @brief	This routine appends a string to the write buffer
  */
 void editor_buffer_append(struct append_buf *buf, const char *s, int len);

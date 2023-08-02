@@ -137,6 +137,7 @@ void editor_init()
 {
 	roku_config.cx = 0;
 	roku_config.cy = 0;
+	roku_config.render_x = 0;
 	roku_config.row_off = 0;
 	roku_config.col_off = 0;
 	roku_config.num_rows = 0;
@@ -178,15 +179,29 @@ void editor_append_row(char *s, size_t len)
  */
 void editor_update_row(editor_row_t *row)
 {
+	int tabs = 0;
+	int i;
+
+	for (i = 0; i < row->size; i++) {
+		if (row->buf[i] == '\t') tabs++;
+	}
+
 	free(row->render);
-	row->render = malloc(row->size + 1);
+	row->render = malloc(row->size + tabs*(TAB_WIDTH - 1) + 1);
 
 	int idx = 0;
-	for (int i = 0; i < row->size; i++) {
-		row->render[idx++] = row->buf[i];
+	for (i = 0; i < row->size; i++) {
+		if (row->buf[i] == '\t') {
+			row->render[idx++] = ' ';
+			while (idx % TAB_WIDTH != 0) {
+				row->render[idx++] = ' ';
+			}
+		} else {
+			row->render[idx++] = row->buf[i];
+		}
 	}
-	row->render[idx] = '\0';
 
+	row->render[idx] = '\0';
 	row->render_size = idx;
 }
 
@@ -207,7 +222,7 @@ void editor_refresh_screen()
 	char buffer[32];
 	snprintf(buffer, sizeof(buffer), "\x1b[%d;%dH",
 			 (roku_config.cy - roku_config.row_off) + 1,
-			 (roku_config.cx - roku_config.col_off) + 1);
+			 (roku_config.render_x - roku_config.col_off) + 1);
 	editor_buffer_append(&buf, buffer, strlen(buffer));
 
 	editor_buffer_append(&buf, "\x1b[?25h", 6);
@@ -222,18 +237,41 @@ void editor_refresh_screen()
  */
 void editor_handle_scrolling()
 {
+	roku_config.render_x = roku_config.cx;
+	if (roku_config.cy < roku_config.num_rows) {
+		roku_config.render_x = editor_row_cx_to_rx(&roku_config.row[roku_config.cy], roku_config.cx);
+	}
+
 	if (roku_config.cy < roku_config.row_off) {
 		roku_config.row_off = roku_config.cy;
 	}
 	if (roku_config.cy >= roku_config.row_off + roku_config.window_size.rows) {
 		roku_config.row_off = roku_config.cy - roku_config.window_size.rows + 1;
 	}
-	if (roku_config.cx < roku_config.col_off) {
-		roku_config.col_off = roku_config.cx;
+	if (roku_config.render_x < roku_config.col_off) {
+		roku_config.col_off = roku_config.render_x;
 	}
-	if (roku_config.cx >= roku_config.col_off + roku_config.window_size.cols) {
-		roku_config.col_off = roku_config.cx - roku_config.window_size.cols + 1;
+	if (roku_config.render_x >= roku_config.col_off + roku_config.window_size.cols) {
+		roku_config.col_off = roku_config.render_x - roku_config.window_size.cols + 1;
 	}
+}
+
+/**
+ * @brief	This routine converts the buffer index into a render index
+ * 
+ * @return	render_x value
+ */
+int editor_row_cx_to_rx(editor_row_t *row, int cx)
+{
+	int render_x = 0;
+	
+	for (int i = 0; i < cx; i++) {
+		if (row->buf[i] == '\t') {
+			render_x += (TAB_WIDTH - 1) - (render_x % TAB_WIDTH);
+		}
+		render_x++;
+	}
+	return render_x;
 }
 
 /**
