@@ -20,6 +20,9 @@
  */
 void file_open(char *filename)
 {
+	free(roku_config.filename);
+	roku_config.filename = strdup(filename);
+
 	FILE *fp = fopen(filename, "r");
 	if (!fp) {
 		die("fopen: couldn't open file");

@@ -29,7 +29,8 @@ int main(int argc, char *argv[])
 		file_open(argv[1]);
 	}
 
-	// we couldn't exit the program without this
+	editor_set_status("Press C-h for help, C-q to quit.");
+
 	while (1) {
 		editor_refresh_screen();
 		input_handle_keypress();

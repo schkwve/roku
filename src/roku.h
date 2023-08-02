@@ -35,6 +35,9 @@ typedef struct {
 	int col_off;
 	int num_rows;
 	editor_row_t *row;
+	char *filename;
+	char status_msg[80];
+	time_t status_msg_time;
 } roku_config_t;
 
 /**

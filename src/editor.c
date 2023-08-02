@@ -8,8 +8,10 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "config.h"
 #include "input.h"
@@ -68,12 +70,71 @@ void editor_draw_row(struct append_buf *buf)
 		}
 
 		editor_buffer_append(buf, "\x1b[K", 3);
-		if (y < roku_config.window_size.rows - 1) {
-			editor_buffer_append(buf, "\r\n", 2);
-		}
+		editor_buffer_append(buf, "\r\n", 2);
 	}
 
 	write(STDOUT_FILENO, "\x1b[H]", 3);
+}
+
+/**
+ * @brief	This routine draws a status bar at the bottom of the terminal window
+ */
+void editor_draw_statusbar(struct append_buf *buf)
+{
+	editor_buffer_append(buf, "\x1b[7m", 4);
+
+	char status[80];
+
+	// this text is aligned to the right edge of the window.
+	char rstatus[80];
+
+	int len = snprintf(status, sizeof(status), "%.20s - %d lines", roku_config.filename ? roku_config.filename : "[No Name]", roku_config.num_rows);
+	int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", roku_config.cy + 1, roku_config.num_rows);
+	if (len > roku_config.window_size.cols) {
+		len = roku_config.window_size.cols;
+	}
+
+	editor_buffer_append(buf, status, len);
+
+	while (len < roku_config.window_size.cols) {
+		if (roku_config.window_size.cols - len == rlen) {
+			editor_buffer_append(buf, rstatus, rlen);
+			break;
+		} else {
+			editor_buffer_append(buf, " ", 1);
+			len++;
+		}
+	}
+	editor_buffer_append(buf, "\x1b[m", 3);
+	editor_buffer_append(buf, "\r\n", 2);
+}
+
+/**
+ * @brief	This routine draws a message bar below the status bar
+ */
+void editor_draw_messagebar(struct append_buf *buf)
+{
+	editor_buffer_append(buf, "\x1b[K", 3);
+
+	int msg_len = strlen(roku_config.status_msg);
+	if (msg_len > roku_config.window_size.cols) {
+		msg_len = roku_config.window_size.cols;
+	}
+	if (msg_len && time(NULL) - roku_config.status_msg_time < 5) {
+		editor_buffer_append(buf, roku_config.status_msg, msg_len);
+	}
+}
+
+/**
+ * @brief	Sets the status message to be shown on the status bar.
+ */
+void editor_set_status(const char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(roku_config.status_msg, sizeof(roku_config.status_msg), fmt, ap);
+	va_end(ap);
+	roku_config.status_msg_time = time(NULL);
 }
 
 /**
@@ -144,11 +205,17 @@ void editor_init()
 	roku_config.col_off = 0;
 	roku_config.num_rows = 0;
 	roku_config.row = NULL;
+	roku_config.filename = NULL;
+	roku_config.status_msg[0] = '\0';
+	roku_config.status_msg_time = 0;
 
 	if (terminal_get_window_size(&roku_config.window_size.rows,
 								 &roku_config.window_size.cols) == -1) {
 		die("terminal_get_window_size: couldn't get window size");
 	}
+
+	// status bar & message bar
+	roku_config.window_size.rows -= 2;
 }
 
 /**
@@ -221,6 +288,8 @@ void editor_refresh_screen()
 	editor_buffer_append(&buf, "\x1b[H", 3);
 
 	editor_draw_row(&buf);
+	editor_draw_statusbar(&buf);
+	editor_draw_messagebar(&buf);
 
 	char buffer[32];
 	snprintf(buffer, sizeof(buffer), "\x1b[%d;%dH",

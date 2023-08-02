@@ -29,6 +29,21 @@ struct append_buf {
 void editor_draw_row(struct append_buf *buf);
 
 /**
+ * @brief	This routine draws a status bar at the bottom of the terminal window
+ */
+void editor_draw_statusbar(struct append_buf *buf);
+
+/**
+ * @brief	This routine draws a message bar below the status bar
+ */
+void editor_draw_messagebar(struct append_buf *buf);
+
+/**
+ * @brief	Sets the status message to be shown on the status bar.
+ */
+void editor_set_status(const char *fmt, ...);
+
+/**
  * @brief	This routine informs the editor_refresh_screen()
  * 			function to update the cursor position
  */
