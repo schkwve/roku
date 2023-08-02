@@ -120,7 +120,8 @@ void input_handle_keypress()
 		if (c == PAGE_UP) {
 			roku_config.cy = roku_config.row_off;
 		} else if (c == PAGE_DOWN) {
-			roku_config.cy = roku_config.row_off + roku_config.window_size.rows - 1;
+			roku_config.cy =
+				roku_config.row_off + roku_config.window_size.rows - 1;
 			if (roku_config.cy > roku_config.num_rows) {
 				roku_config.cy = roku_config.num_rows;
 			}
