@@ -49,7 +49,8 @@ int input_get_keypress()
 					switch (seq[1]) {
 					case '1':
 						return HOME_KEY;
-					case '3': return DEL_KEY;
+					case '3':
+						return DEL_KEY;
 					case '4':
 						return END_KEY;
 					case '5':
@@ -115,11 +116,12 @@ void input_handle_keypress()
 	case CTRL_KEY('l'):
 	case '\x1b':
 		break;
-	
+
 	/* General keys */
 	case CTRL_KEY('q'):
 		if (roku_config.file_dirty && quit_times > 0) {
-			editor_set_status("File has unsaved changes. Press Ctrl-q again to quit.");
+			editor_set_status(
+				"File has unsaved changes. Press Ctrl-q again to quit.");
 			quit_times--;
 			return;
 		}

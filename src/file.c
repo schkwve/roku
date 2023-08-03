@@ -60,7 +60,7 @@ void file_save()
 			return;
 		}
 	}
-	
+
 	int len;
 	char *buf = file_rows_to_string(&len);
 

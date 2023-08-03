@@ -23,7 +23,8 @@ void find()
 	int saved_col_off = roku_config.col_off;
 	int saved_row_off = roku_config.row_off;
 
-	char *query = editor_display_prompt("Search: %s (ESC to cancel)", find_callback);
+	char *query =
+		editor_display_prompt("Search: %s (ESC to cancel)", find_callback);
 
 	if (query) {
 		free(query);
@@ -74,7 +75,8 @@ void *find_callback(char *query, int key)
 		if (match) {
 			last_match = current;
 			roku_config.cur_y = current;
-			roku_config.cur_x = editor_row_rx_to_cur_x(row, match - row->render);
+			roku_config.cur_x =
+				editor_row_rx_to_cur_x(row, match - row->render);
 			roku_config.cur_x = match - row->render;
 			roku_config.row_off = roku_config.num_rows;
 			break;
