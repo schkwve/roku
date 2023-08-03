@@ -1,4 +1,4 @@
-# Foobar
+# 六 Text Editor
 
 Roku is a lightweight text editor, implementing everything you would want from one.
 This software is not yet ready for daily use and may contain bugs. If you find some, please report them in the Issues tab.
