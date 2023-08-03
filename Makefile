@@ -12,7 +12,11 @@
 CC := gcc
 LD := $(CC)
 
-CFLAGS := -O2 -g3 -Wall -Wextra -Werror -pedantic -std=c99
+INTERNAL_CFLAGS := -O2 -g3 -Wall -Wextra -Werror -pedantic -std=c99
+INTERNAL_LDFLAGS :=
+
+CFLAGS += $(INTERNAL_CFLAGS)
+LDFLAGS += $(INTERNAL_LDFLAGS)
 
 CFILES := $(shell find src -name "*.c")
 OBJ := $(CFILES:.c=.o)
@@ -26,7 +30,7 @@ all: $(PROGRAM)
 
 $(PROGRAM): $(OBJ)
 	@printf " LD   $@\n"
-	@$(LD) $(OBJ) -o $@
+	@$(LD) $(LDFLAGS) $(OBJ) -o $@
 
 %.o: %.c
 	@printf " CC   $^\n"
