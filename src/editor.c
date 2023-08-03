@@ -93,7 +93,7 @@ void editor_draw_statusbar(struct append_buf *buf)
 				 roku_config.filename ? roku_config.filename : "[No Name]",
 				 roku_config.num_rows,
 				 roku_config.file_dirty ? " (modified)" : "");
-	int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", roku_config.cy + 1,
+	int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", roku_config.cur_y + 1,
 						roku_config.num_rows);
 	if (len > roku_config.window_size.cols) {
 		len = roku_config.window_size.cols;
@@ -200,52 +200,52 @@ void editor_set_status(const char *fmt, ...)
 void editor_move_curpos(int key)
 {
 	editor_row_t *row;
-	if (roku_config.cy >= roku_config.num_rows) {
+	if (roku_config.cur_y >= roku_config.num_rows) {
 		row = NULL;
 	} else {
-		row = &roku_config.row[roku_config.cy];
+		row = &roku_config.row[roku_config.cur_y];
 	}
 
 	switch (key) {
 	case ARROW_LEFT:
-		if (roku_config.cx != 0) {
-			roku_config.cx--;
-		} else if (roku_config.cy > 0) {
-			roku_config.cy--;
-			roku_config.cx = roku_config.row[roku_config.cy].size;
+		if (roku_config.cur_x != 0) {
+			roku_config.cur_x--;
+		} else if (roku_config.cur_y > 0) {
+			roku_config.cur_y--;
+			roku_config.cur_x = roku_config.row[roku_config.cur_y].size;
 		}
 		break;
 	case ARROW_RIGHT:
-		if (row && roku_config.cx < row->size) {
-			roku_config.cx++;
-		} else if (row && roku_config.cx == row->size) {
-			roku_config.cy++;
-			roku_config.cx = 0;
+		if (row && roku_config.cur_x < row->size) {
+			roku_config.cur_x++;
+		} else if (row && roku_config.cur_x == row->size) {
+			roku_config.cur_y++;
+			roku_config.cur_x = 0;
 		}
 		break;
 	case ARROW_UP:
-		if (roku_config.cy != 0) {
-			roku_config.cy--;
+		if (roku_config.cur_y != 0) {
+			roku_config.cur_y--;
 		}
 		break;
 	case ARROW_DOWN:
-		if (roku_config.cy < roku_config.num_rows) {
-			roku_config.cy++;
+		if (roku_config.cur_y < roku_config.num_rows) {
+			roku_config.cur_y++;
 		}
 		break;
 	}
 
-	// roku_config.cy could point to a different line
+	// roku_config.cur_y could point to a different line
 	// than before
-	if (roku_config.cy >= roku_config.num_rows) {
+	if (roku_config.cur_y >= roku_config.num_rows) {
 		row = NULL;
 	} else {
-		row = &roku_config.row[roku_config.cy];
+		row = &roku_config.row[roku_config.cur_y];
 	}
 
 	int row_len = row ? row->size : 0;
-	if (roku_config.cx > row_len) {
-		roku_config.cx = row_len;
+	if (roku_config.cur_x > row_len) {
+		roku_config.cur_x = row_len;
 	}
 }
 
@@ -254,8 +254,8 @@ void editor_move_curpos(int key)
  */
 void editor_init()
 {
-	roku_config.cx = 0;
-	roku_config.cy = 0;
+	roku_config.cur_x = 0;
+	roku_config.cur_y = 0;
 	roku_config.render_x = 0;
 	roku_config.row_off = 0;
 	roku_config.col_off = 0;
@@ -280,12 +280,12 @@ void editor_init()
  */
 void editor_insert_char(int c)
 {
-	if (roku_config.cy == roku_config.num_rows) {
+	if (roku_config.cur_y == roku_config.num_rows) {
 		editor_append_row(roku_config.num_rows, "", 0);
 	}
 
-	editor_insert_into_row(&roku_config.row[roku_config.cy], roku_config.cx, c);
-	roku_config.cx++;
+	editor_insert_into_row(&roku_config.row[roku_config.cur_y], roku_config.cur_x, c);
+	roku_config.cur_x++;
 }
 
 /**
@@ -293,22 +293,22 @@ void editor_insert_char(int c)
  */
 void editor_remove_char()
 {
-	if (roku_config.cy == roku_config.num_rows) {
+	if (roku_config.cur_y == roku_config.num_rows) {
 		return;
 	}
-	if (roku_config.cx == 0 && roku_config.cy == 0) {
+	if (roku_config.cur_x == 0 && roku_config.cur_y == 0) {
 		return;
 	}
 
-	editor_row_t *row = &roku_config.row[roku_config.cy];
-	if (roku_config.cx > 0) {
-		editor_remove_from_row(row, roku_config.cx - 1);
-		roku_config.cx--;
+	editor_row_t *row = &roku_config.row[roku_config.cur_y];
+	if (roku_config.cur_x > 0) {
+		editor_remove_from_row(row, roku_config.cur_x - 1);
+		roku_config.cur_x--;
 	} else {
-		roku_config.cx = roku_config.row[roku_config.cy - 1].size;
-		editor_row_append_string(&roku_config.row[roku_config.cy - 1], row->buf, row->size);
-		editor_remove_row(roku_config.cy);
-		roku_config.cy--;
+		roku_config.cur_x = roku_config.row[roku_config.cur_y - 1].size;
+		editor_row_append_string(&roku_config.row[roku_config.cur_y - 1], row->buf, row->size);
+		editor_remove_row(roku_config.cur_y);
+		roku_config.cur_y--;
 	}
 }
 
@@ -447,18 +447,18 @@ void editor_update_row(editor_row_t *row)
  */
 void editor_insert_newline()
 {
-	if (roku_config.cx == 0) {
-		editor_append_row(roku_config.cy, "", 0);
+	if (roku_config.cur_x == 0) {
+		editor_append_row(roku_config.cur_y, "", 0);
 	} else {
-		editor_row_t *row = &roku_config.row[roku_config.cy];
-		editor_append_row(roku_config.cy + 1, &row->buf[roku_config.cx], row->size - roku_config.cx);
-		row = &roku_config.row[roku_config.cy];
-		row->size = roku_config.cx;
+		editor_row_t *row = &roku_config.row[roku_config.cur_y];
+		editor_append_row(roku_config.cur_y + 1, &row->buf[roku_config.cur_x], row->size - roku_config.cur_x);
+		row = &roku_config.row[roku_config.cur_y];
+		row->size = roku_config.cur_x;
 		row->buf[row->size] = '\0';
 		editor_update_row(row);
 	}
-	roku_config.cy++;
-	roku_config.cx = 0;
+	roku_config.cur_y++;
+	roku_config.cur_x = 0;
 }
 
 /**
@@ -479,7 +479,7 @@ void editor_refresh_screen()
 
 	char buffer[32];
 	snprintf(buffer, sizeof(buffer), "\x1b[%d;%dH",
-			 (roku_config.cy - roku_config.row_off) + 1,
+			 (roku_config.cur_y - roku_config.row_off) + 1,
 			 (roku_config.render_x - roku_config.col_off) + 1);
 	editor_buffer_append(&buf, buffer, strlen(buffer));
 
@@ -495,17 +495,17 @@ void editor_refresh_screen()
  */
 void editor_handle_scrolling()
 {
-	roku_config.render_x = roku_config.cx;
-	if (roku_config.cy < roku_config.num_rows) {
-		roku_config.render_x = editor_row_cx_to_rx(
-			&roku_config.row[roku_config.cy], roku_config.cx);
+	roku_config.render_x = roku_config.cur_x;
+	if (roku_config.cur_y < roku_config.num_rows) {
+		roku_config.render_x = editor_row_cur_x_to_rx(
+			&roku_config.row[roku_config.cur_y], roku_config.cur_x);
 	}
 
-	if (roku_config.cy < roku_config.row_off) {
-		roku_config.row_off = roku_config.cy;
+	if (roku_config.cur_y < roku_config.row_off) {
+		roku_config.row_off = roku_config.cur_y;
 	}
-	if (roku_config.cy >= roku_config.row_off + roku_config.window_size.rows) {
-		roku_config.row_off = roku_config.cy - roku_config.window_size.rows + 1;
+	if (roku_config.cur_y >= roku_config.row_off + roku_config.window_size.rows) {
+		roku_config.row_off = roku_config.cur_y - roku_config.window_size.rows + 1;
 	}
 	if (roku_config.render_x < roku_config.col_off) {
 		roku_config.col_off = roku_config.render_x;
@@ -522,11 +522,11 @@ void editor_handle_scrolling()
  * 
  * @return	render_x value
  */
-int editor_row_cx_to_rx(editor_row_t *row, int cx)
+int editor_row_cur_x_to_rx(editor_row_t *row, int cur_x)
 {
 	int render_x = 0;
 
-	for (int i = 0; i < cx; i++) {
+	for (int i = 0; i < cur_x; i++) {
 		if (row->buf[i] == '\t') {
 			render_x += (TAB_WIDTH - 1) - (render_x % TAB_WIDTH);
 		}
@@ -540,23 +540,23 @@ int editor_row_cx_to_rx(editor_row_t *row, int cx)
  * 
  * @return	cur_x value
  */
-int editor_row_rx_to_cx(editor_row_t *row, int rx)
+int editor_row_rx_to_cur_x(editor_row_t *row, int rx)
 {
 	int render_x = 0;
-	int cx;
+	int cur_x;
 
-	for (cx = 0; cx < row->size; cx++) {
-		if (row->buf[cx] == '\t') {
+	for (cur_x = 0; cur_x < row->size; cur_x++) {
+		if (row->buf[cur_x] == '\t') {
 			render_x += (TAB_WIDTH - 1) - (render_x % TAB_WIDTH);
 		}
 		render_x++;
 
 		if (render_x > rx) {
-			return cx;
+			return cur_x;
 		}
 	}
 
-	return cx;
+	return cur_x;
 }
 
 /**

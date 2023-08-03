@@ -109,7 +109,7 @@ void terminal_enable_raw()
 	//	~ISIG - disable signal processing (SIGINT, ...)
 	////////////////////////////////////////////////////////////////////////////
 	// these flags are most likely useless and might be removed in the future
-	// they are left for legacy terminals
+	// they are left for legacur_y terminals
 	//	~BRKINT - a break condition will not cause a SIGINT anymore
 	//	 CS8 - sets character size to 8 bits per byte
 	new_terminal_flags.c_lflag &= ~(ECHO);

@@ -30,7 +30,7 @@ typedef struct {
 typedef struct {
 	struct termios orig_termios;
 	terminal_winsize_t window_size;
-	int cx, cy;
+	int cur_x, cur_y;
 	int render_x;
 	int row_off;
 	int col_off;

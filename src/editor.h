@@ -127,14 +127,14 @@ void editor_handle_scrolling();
  * 
  * @return	render_x value
  */
-int editor_row_cx_to_rx(editor_row_t *row, int cx);
+int editor_row_cur_x_to_rx(editor_row_t *row, int cur_x);
 
 /**
  * @brief	This routine converts the render index into a buffer index
  * 
  * @return	cur_x value
  */
-int editor_row_rx_to_cx(editor_row_t *row, int rx);
+int editor_row_rx_to_cur_x(editor_row_t *row, int rx);
 
 /**
  * @brief	This routine appends a string to the write buffer

@@ -139,22 +139,22 @@ void input_handle_keypress()
 		editor_move_curpos(c);
 		break;
 	case HOME_KEY:
-		roku_config.cx = 0;
+		roku_config.cur_x = 0;
 		break;
 	case END_KEY:
-		if (roku_config.cy < roku_config.num_rows) {
-			roku_config.cx = roku_config.row[roku_config.cy].size;
+		if (roku_config.cur_y < roku_config.num_rows) {
+			roku_config.cur_x = roku_config.row[roku_config.cur_y].size;
 		}
 		break;
 	case PAGE_UP:
 	case PAGE_DOWN: {
 		if (c == PAGE_UP) {
-			roku_config.cy = roku_config.row_off;
+			roku_config.cur_y = roku_config.row_off;
 		} else if (c == PAGE_DOWN) {
-			roku_config.cy =
+			roku_config.cur_y =
 				roku_config.row_off + roku_config.window_size.rows - 1;
-			if (roku_config.cy > roku_config.num_rows) {
-				roku_config.cy = roku_config.num_rows;
+			if (roku_config.cur_y > roku_config.num_rows) {
+				roku_config.cur_y = roku_config.num_rows;
 			}
 		}
 		int times = roku_config.window_size.rows;

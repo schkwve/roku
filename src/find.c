@@ -18,8 +18,8 @@
  */
 void find()
 {
-	int saved_cx = roku_config.cx;
-	int saved_cy = roku_config.cy;
+	int saved_cur_x = roku_config.cur_x;
+	int saved_cur_y = roku_config.cur_y;
 	int saved_col_off = roku_config.col_off;
 	int saved_row_off = roku_config.row_off;
 
@@ -28,8 +28,8 @@ void find()
 	if (query) {
 		free(query);
 	} else {
-		roku_config.cx = saved_cx;
-		roku_config.cy = saved_cy;
+		roku_config.cur_x = saved_cur_x;
+		roku_config.cur_y = saved_cur_y;
 		roku_config.col_off = saved_col_off;
 		roku_config.row_off = saved_row_off;
 	}
@@ -73,9 +73,9 @@ void *find_callback(char *query, int key)
 		char *match = strstr(row->render, query);
 		if (match) {
 			last_match = current;
-			roku_config.cy = current;
-			roku_config.cx = editor_row_rx_to_cx(row, match - row->render);
-			roku_config.cx = match - row->render;
+			roku_config.cur_y = current;
+			roku_config.cur_x = editor_row_rx_to_cur_x(row, match - row->render);
+			roku_config.cur_x = match - row->render;
 			roku_config.row_off = roku_config.num_rows;
 			break;
 		}
